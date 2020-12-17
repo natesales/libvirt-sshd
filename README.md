@@ -15,7 +15,7 @@ libvirt-sshd is available as a debian package and x86 binary in the releases sec
 ```
 Usage for libvirt-sshd (dev) https://github.com/natesales/libvirt-sshd:
   -k string
-        SSH host key file (default "~/.ssh/id_rsa")
+        SSH host key file (default "~/.ssh/id_ed25519")
   -l string
         Listen <host:port> (default ":2222")
   -p string
