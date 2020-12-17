@@ -19,9 +19,10 @@ import (
 
 var release = "dev" // set by the build process
 var (
-	bindHost  = flag.String("l", ":2222", "Listen <host:port>")
-	verbose   = flag.Bool("v", false, "Enable verbose logging")
-	virshPath = flag.String("p", "virsh", "Path to virsh binary")
+	hostKeyFile = flag.String("k", "~/.ssh/id_rsa", "SSH host key file")
+	bindHost    = flag.String("l", ":2222", "Listen <host:port>")
+	verbose     = flag.Bool("v", false, "Enable verbose logging")
+	virshPath   = flag.String("p", "virsh", "Path to virsh binary")
 )
 
 type Domain struct {
@@ -84,7 +85,6 @@ func main() {
 					if *verbose {
 						log.Printf("Permission denied from %s for %s\n", s.RemoteAddr(), domain.UUID)
 					}
-
 					io.WriteString(s, "Permission denied\n")
 					s.Exit(1)
 				} else {
@@ -137,7 +137,7 @@ func main() {
 	})
 
 	log.Printf("Starting sshpty server on %s\n", *bindHost)
-	log.Fatal(ssh.ListenAndServe(*bindHost, nil, ssh.PublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+	log.Fatal(ssh.ListenAndServe(*bindHost, nil, ssh.HostKeyFile(*hostKeyFile), ssh.PublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
 		return true // require pubkey auth
 	})))
 }
