@@ -64,7 +64,7 @@ func main() {
 			s.Exit(1)
 		}
 
-		cmd := exec.Command("virsh", "console", s.User()) // add --safe
+		cmd := exec.Command("virsh", "console", "--safe", s.User())
 		ptyReq, winCh, isPty := s.Pty()
 		if isPty {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("TERM=%s", ptyReq.Term))
