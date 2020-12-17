@@ -60,8 +60,8 @@ func main() {
 				}
 			}
 
-			io.WriteString(s, "Permission denied\n")
-			s.Exit(1)
+			_, _ = io.WriteString(s, "Permission denied\n")
+			_ = s.Exit(1)
 		}
 
 		cmd := exec.Command("virsh", "console", "--safe", s.User())
@@ -70,7 +70,9 @@ func main() {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("TERM=%s", ptyReq.Term))
 			f, err := pty.Start(cmd)
 			if err != nil {
-				panic(err)
+				_, _ = io.WriteString(s, "unable to start PTY\n")
+				_ = s.Exit(1)
+				log.Fatalf("unable to start pty: %v\n", err)
 			}
 			go func() {
 				for win := range winCh {
@@ -83,8 +85,8 @@ func main() {
 			io.Copy(s, f) // stdout
 			cmd.Wait()
 		} else {
-			io.WriteString(s, "No PTY requested.\n")
-			s.Exit(1)
+			_, _ = io.WriteString(s, "No PTY requested.\n")
+			_ = s.Exit(1)
 		}
 	})
 
