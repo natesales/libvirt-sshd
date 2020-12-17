@@ -1,0 +1,14 @@
+[Unit]
+Description=SSH into a libvirt qemu VM serial console
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/libvirt-sshd
+ExecStart=/usr/bin/libvirt-sshd $SSHD_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=sshd.service

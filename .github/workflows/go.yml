@@ -29,7 +29,18 @@ jobs:
         run: go build -ldflags "-X main.release=${{ steps.vars.outputs.tag }} -v"
 
       - name: Make debian build directory
-        run: mkdir -p {debian/DEBIAN/,debian/etc/libvirt-sshd/templates/,debian/usr/bin/}
+        run: mkdir -p {debian/DEBIAN/,debian/etc/libvirt-sshd/templates/,debian/usr/bin/,debian/lib/systemd/system/,debian/etc/default/}
+
+      - name: Copy service file
+        run: cp libvirt-sshd.service debian/lib/systemd/system/libvirt-sshd.service
+
+      - name: Copy env defaults
+        run: |
+          echo "# Default settings for libvirt-sshd
+
+          # Options to pass to libvirt-sshd
+          LIBVIRT_SSHD_OPTS=
+          " > debian/etc/default/libvirt-sshd
 
       - name: Copy binary
         run: cp libvirt-sshd debian/usr/bin/
