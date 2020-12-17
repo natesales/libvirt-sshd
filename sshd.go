@@ -19,8 +19,9 @@ import (
 
 var release = "dev" // set by the build process
 var (
-	bindHost = flag.String("l", ":2222", "Listen <host:port>")
-	verbose  = flag.Bool("v", false, "Enable verbose logging")
+	bindHost  = flag.String("l", ":2222", "Listen <host:port>")
+	verbose   = flag.Bool("v", false, "Enable verbose logging")
+	virshPath = flag.String("p", "virhs", "Path to virsh binary")
 )
 
 type Domain struct {
@@ -101,7 +102,7 @@ func main() {
 			_ = s.Exit(1)
 		}
 
-		cmd := exec.Command("virsh", "console", "--safe", s.User())
+		cmd := exec.Command(*virshPath, "console", "--safe", s.User())
 		ptyReq, winCh, isPty := s.Pty()
 		if isPty {
 			if *verbose {
