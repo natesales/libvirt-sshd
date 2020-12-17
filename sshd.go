@@ -18,7 +18,10 @@ import (
 )
 
 var release = "dev" // set by the build process
-var bindHost = flag.String("l", ":2222", "Listen <host:port>")
+var (
+	bindHost = flag.String("l", ":2222", "Listen <host:port>")
+	verbose  = flag.Bool("v", false, "Enable verbose logging")
+)
 
 type Domain struct {
 	XMLName xml.Name `xml:"domain"`
@@ -39,14 +42,30 @@ func main() {
 
 	flag.Parse()
 
+	if *verbose {
+		log.Println("Verbose logging enabled")
+	}
+
 	ssh.Handle(func(s ssh.Session) {
+		if *verbose {
+			log.Printf("SSH connection from %s\n", s.RemoteAddr())
+		}
+
 		// Find VM by UUID
 		files, err := filepath.Glob("/etc/libvirt/qemu/*.xml")
 		if err != nil {
-			panic(err)
+			log.Fatalf("unable to parse qemu config file glob: %v\n", err)
+		}
+
+		if len(files) == 0 {
+			log.Println("No qemu domain files found")
 		}
 
 		for _, f := range files {
+			if *verbose {
+				log.Printf("Connection %s trying %s\n", s.RemoteAddr(), f)
+			}
+
 			xmlFile, err := os.Open(f)
 			if err != nil {
 				fmt.Println(err)
@@ -61,14 +80,23 @@ func main() {
 			if domain.UUID == s.User() {
 				realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(domain.Key))
 				if err != nil || !reflect.DeepEqual(realKey.Marshal(), s.PublicKey().Marshal()) {
+					if *verbose {
+						log.Printf("Permission denied from %s for %s\n", s.RemoteAddr(), domain.UUID)
+					}
+
 					io.WriteString(s, "Permission denied\n")
 					s.Exit(1)
 				} else {
-					// io.WriteString(s, "Key matches!")
+					if *verbose {
+						log.Printf("Allowing connection from %s for %s\n", s.RemoteAddr(), domain.UUID)
+					}
 					break
 				}
 			}
 
+			if *verbose {
+				log.Printf("Connection %s UUID not found %s\n", s.RemoteAddr(), domain.UUID)
+			}
 			_, _ = io.WriteString(s, "Permission denied\n")
 			_ = s.Exit(1)
 		}
@@ -76,6 +104,9 @@ func main() {
 		cmd := exec.Command("virsh", "console", "--safe", s.User())
 		ptyReq, winCh, isPty := s.Pty()
 		if isPty {
+			if *verbose {
+				log.Printf("Starting PTY for %s\n", s.RemoteAddr())
+			}
 			cmd.Env = append(cmd.Env, fmt.Sprintf("TERM=%s", ptyReq.Term))
 			f, _ := pty.Start(cmd)
 			go func() {
