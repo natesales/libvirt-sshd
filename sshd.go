@@ -33,9 +33,8 @@ func setWinsize(f *os.File, w, h int) {
 
 func main() {
 	flag.Parse()
-
 	flag.Usage = func() {
-		fmt.Printf("Usage for stping (%s) https://github.com/natesales/libvirt-sshd:\n", release)
+		fmt.Printf("Usage for libvirt-sshd (%s) https://github.com/natesales/libvirt-sshd:\n", release)
 		flag.PrintDefaults()
 	}
 
