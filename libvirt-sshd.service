@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 EnvironmentFile=-/etc/default/libvirt-sshd
-ExecStart=/usr/bin/libvirt-sshd $SSHD_OPTS
+ExecStart=/usr/bin/libvirt-sshd $LIBVIRT_SSHD_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 Restart=on-failure
