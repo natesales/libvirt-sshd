@@ -53,7 +53,7 @@ jobs:
           Priority: optional
           Architecture: amd64
           Maintainer: Nate Sales <nate@natesales.net>
-          Description: SSH into a libvirt qemu VM serial console" > debian/DEBIAN/control
+          Description: SSH daemon to interact with libvirt domain serial consoles" > debian/DEBIAN/control
 
       - name: Create debian copyright file
         run: echo "Copyright 2020 Nathan Sales." > debian/DEBIAN/copyright

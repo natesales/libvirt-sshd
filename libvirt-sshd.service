@@ -1,5 +1,5 @@
 [Unit]
-Description=SSH into a libvirt qemu VM serial console
+Description=SSH daemon to interact with libvirt domain serial consoles
 After=network.target
 
 [Service]

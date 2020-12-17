@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/github/license/natesales/libvirt-sshd?style=for-the-badge)](hhttps://github.com/natesales/libvirt-sshd/blob/main/LICENSE) 
 [![Release](https://img.shields.io/github/v/release/natesales/libvirt-sshd?style=for-the-badge)](https://github.com/natesales/libvirt-sshd/releases) 
 
-SSH into a libvirt qemu VM serial console
+SSH daemon to interact with libvirt domain serial consoles 
 
 ### Installation
 
@@ -14,9 +14,11 @@ libvirt-sshd is available as a debian package and x86 binary in the releases sec
 
 ```
 Usage for libvirt-sshd (dev) https://github.com/natesales/libvirt-sshd:
+  -k string
+        SSH host key file (default "~/.ssh/id_rsa")
   -l string
         Listen <host:port> (default ":2222")
   -p string
-        Path to virsh binary (default "virhs")
+        Path to virsh binary (default "virsh")
   -v    Enable verbose logging
 ```
