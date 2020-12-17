@@ -68,7 +68,7 @@ func main() {
 
 			xmlFile, err := os.Open(f)
 			if err != nil {
-				fmt.Println(err)
+				log.Printf("xml open error: %v\n", err)
 			}
 			defer xmlFile.Close()
 
@@ -117,17 +117,17 @@ func main() {
 			go func() {
 				_, err = io.Copy(f, s) // stdin
 				if err != nil {
-					fmt.Printf("virsh f->s copy error: %v\n", err)
+					log.Printf("virsh f->s copy error: %v\n", err)
 				}
 			}()
 			_, err = io.Copy(s, f) // stdout
 			if err != nil {
-				fmt.Printf("virsh s->f copy error: %v\n", err)
+				log.Printf("virsh s->f copy error: %v\n", err)
 			}
 
 			err = cmd.Wait()
 			if err != nil {
-				fmt.Printf("virsh wait error: %v\n", err)
+				log.Printf("virsh wait error: %v\n", err)
 			}
 		} else {
 			_, _ = io.WriteString(s, "No PTY requested.\n")
