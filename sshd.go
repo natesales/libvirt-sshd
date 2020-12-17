@@ -101,7 +101,7 @@ func main() {
 			_ = s.Exit(1)
 		}
 
-		cmd := exec.Command("virsh", "console", s.User())
+		cmd := exec.Command("virsh", "console", "--safe", s.User())
 		ptyReq, winCh, isPty := s.Pty()
 		if isPty {
 			if *verbose {
