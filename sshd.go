@@ -64,16 +64,11 @@ func main() {
 			_ = s.Exit(1)
 		}
 
-		cmd := exec.Command("virsh", "console", s.User())
+		cmd := exec.Command("virsh", "console", "--safe", s.User())
 		ptyReq, winCh, isPty := s.Pty()
 		if isPty {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("TERM=%s", ptyReq.Term))
-			f, err := pty.Start(cmd)
-			if err != nil {
-				_, _ = io.WriteString(s, "unable to start PTY\n")
-				_ = s.Exit(1)
-				log.Fatalf("unable to start pty: %v\n", err)
-			}
+			f, _ := pty.Start(cmd)
 			go func() {
 				for win := range winCh {
 					setWinsize(f, win.Width, win.Height)
