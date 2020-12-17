@@ -115,10 +115,20 @@ func main() {
 				}
 			}()
 			go func() {
-				io.Copy(f, s) // stdin
+				_, err = io.Copy(f, s) // stdin
+				if err != nil {
+					fmt.Printf("virsh f->s copy error: %v\n", err)
+				}
 			}()
-			io.Copy(s, f) // stdout
-			cmd.Wait()
+			_, err = io.Copy(s, f) // stdout
+			if err != nil {
+				fmt.Printf("virsh s->f copy error: %v\n", err)
+			}
+
+			err = cmd.Wait()
+			if err != nil {
+				fmt.Printf("virsh wait error: %v\n", err)
+			}
 		} else {
 			_, _ = io.WriteString(s, "No PTY requested.\n")
 			_ = s.Exit(1)
