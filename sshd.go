@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
@@ -16,7 +17,8 @@ import (
 	"unsafe"
 )
 
-const bindHost = ":2222"
+var release = "dev" // set by the build process
+var bindHost = flag.String("l", ":2222", "Listen <host:port>")
 
 type Domain struct {
 	XMLName xml.Name `xml:"domain"`
@@ -30,6 +32,13 @@ func setWinsize(f *os.File, w, h int) {
 }
 
 func main() {
+	flag.Parse()
+
+	flag.Usage = func() {
+		fmt.Printf("Usage for stping (%s) https://github.com/natesales/libvirt-sshd:\n", release)
+		flag.PrintDefaults()
+	}
+
 	ssh.Handle(func(s ssh.Session) {
 		// Find VM by UUID
 		files, err := filepath.Glob("/etc/libvirt/qemu/*.xml")
@@ -85,8 +94,8 @@ func main() {
 		}
 	})
 
-	log.Printf("Starting sshpty server on %s\n", bindHost)
-	log.Fatal(ssh.ListenAndServe(bindHost, nil, ssh.PublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+	log.Printf("Starting sshpty server on %s\n", *bindHost)
+	log.Fatal(ssh.ListenAndServe(*bindHost, nil, ssh.PublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
 		return true // require pubkey auth
 	})))
 }
