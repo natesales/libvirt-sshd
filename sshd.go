@@ -18,6 +18,8 @@ import (
 )
 
 var release = "dev" // set by the build process
+
+// Define flags
 var (
 	hostKeyFile = flag.String("k", "~/.ssh/id_ed25519", "SSH host key file")
 	bindHost    = flag.String("l", ":2222", "Listen <host:port>")
@@ -25,15 +27,12 @@ var (
 	virshPath   = flag.String("p", "virsh", "Path to virsh binary")
 )
 
+// libvirt domain
 type Domain struct {
 	XMLName xml.Name `xml:"domain"`
 	Name    string   `xml:"name"`
 	Key     string   `xml:"description"`
 	UUID    string   `xml:"uuid"`
-}
-
-func setWinsize(f *os.File, w, h int) {
-	syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ), uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
 }
 
 func main() {
@@ -68,26 +67,29 @@ func main() {
 				log.Printf("Connection %s trying %s\n", s.RemoteAddr(), f)
 			}
 
+			// Read libvirt XML file
 			xmlFile, err := os.Open(f)
 			if err != nil {
 				log.Printf("xml open error: %v\n", err)
 			}
 			defer xmlFile.Close()
 
+			// Parse libvirt XML file
 			byteValue, _ := ioutil.ReadAll(xmlFile)
-
 			var domain Domain
 			xml.Unmarshal(byteValue, &domain)
 
 			if domain.UUID == s.User() {
+				// Convert ssh key string to key object
 				realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(domain.Key))
-				if err != nil || !reflect.DeepEqual(realKey.Marshal(), s.PublicKey().Marshal()) {
+				// Verify key equality
+				if err != nil || !reflect.DeepEqual(realKey.Marshal(), s.PublicKey().Marshal()) { // If keys don't match
 					if *verbose {
 						log.Printf("Permission denied from %s for %s\n", s.RemoteAddr(), domain.UUID)
 					}
 					io.WriteString(s, "Permission denied\n")
 					s.Exit(1)
-				} else {
+				} else { // If keys match
 					if *verbose {
 						log.Printf("Allowing connection from %s for %s\n", s.RemoteAddr(), domain.UUID)
 					}
@@ -103,7 +105,7 @@ func main() {
 		}
 
 		cmd := exec.Command(*virshPath, "console", "--safe", s.User())
-		ptyReq, winCh, isPty := s.Pty()
+		ptyReq, winCh, isPty := s.Pty() // get SSH PTY information
 		if isPty {
 			if *verbose {
 				log.Printf("Starting PTY for %s\n", s.RemoteAddr())
@@ -112,10 +114,10 @@ func main() {
 			f, _ := pty.Start(cmd)
 			go func() {
 				for win := range winCh {
-					setWinsize(f, win.Width, win.Height)
+					syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ), uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(win.Height), uint16(win.Width), 0, 0})))
 				}
 			}()
-			go func() {
+			go func() { // goroutine to handle
 				_, err = io.Copy(f, s) // stdin
 				if err != nil {
 					log.Printf("virsh f->s copy error: %v\n", err)
