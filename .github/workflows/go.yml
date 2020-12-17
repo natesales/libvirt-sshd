@@ -39,7 +39,7 @@ jobs:
           echo "# Default settings for libvirt-sshd
 
           # Options to pass to libvirt-sshd
-          LIBVIRT_SSHD_OPTS=
+          LIBVIRT_SSHD_OPTS=-l :2222
           " > debian/etc/default/libvirt-sshd
 
       - name: Copy binary
