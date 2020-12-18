@@ -8,7 +8,7 @@ SSH daemon to interact with libvirt domain serial consoles
 
 ### Installation
 
-libvirt-sshd is available as a debian package and x86 binary in the releases section of this repo. It's also available as an APT package by adding `deb [trusted=yes] https://apt.fury.io/natesales/ /` to your /etc/apt/source.list file.
+libvirt-sshd is available as a debian package and amd64 binary in the releases section of this repo. It's also available as an APT package by adding `deb [trusted=yes] https://apt.fury.io/natesales/ /` to your /etc/apt/source.list file.
 
 ### Usage
 
