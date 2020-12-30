@@ -39,7 +39,9 @@ type Domain struct {
 // Check if providedKey is an authorized key
 func userVerified(keys string, providedKey ssh.PublicKey) bool {
 	for _, key := range strings.Split(keys, ",") {
-
+		if *verbose {
+			fmt.Printf("loading allowed key %s\n", key)
+		}
 		realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
 		// Verify key equality
 		if err == nil && reflect.DeepEqual(realKey.Marshal(), providedKey.Marshal()) { // If keys match
