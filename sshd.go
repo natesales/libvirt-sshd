@@ -39,6 +39,7 @@ type Domain struct {
 // Check if providedKey is an authorized key
 func userVerified(keys string, providedKey ssh.PublicKey) bool {
 	for _, key := range strings.Split(keys, ",") {
+
 		realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
 		// Verify key equality
 		if err == nil && reflect.DeepEqual(realKey.Marshal(), providedKey.Marshal()) { // If keys match
@@ -102,10 +103,11 @@ func main() {
 					break
 				} else { // If user not allowed
 					if *verbose {
-						log.Printf("Permission denied from %s for %s\n", s.RemoteAddr(), domain.UUID)
+						log.Printf("Denying %s for %s\n", s.RemoteAddr(), domain.UUID)
 					}
 					io.WriteString(s, "Permission denied\n")
 					s.Exit(1)
+					break
 				}
 			}
 
