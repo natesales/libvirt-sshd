@@ -1,6 +1,8 @@
 <component name="ProjectDictionaryState">
   <dictionary name="nate">
     <words>
+      <w>libvirt</w>
+      <w>qemu</w>
       <w>virsh</w>
     </words>
   </dictionary>

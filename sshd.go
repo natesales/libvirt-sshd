@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -31,8 +32,21 @@ var (
 type Domain struct {
 	XMLName xml.Name `xml:"domain"`
 	Name    string   `xml:"name"`
-	Key     string   `xml:"description"`
+	Keys    string   `xml:"description"`
 	UUID    string   `xml:"uuid"`
+}
+
+// Check if providedKey is an authorized key
+func userVerified(keys string, providedKey ssh.PublicKey) bool {
+	for _, key := range strings.Split(keys, ",") {
+		realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
+		// Verify key equality
+		if err == nil && reflect.DeepEqual(realKey.Marshal(), providedKey.Marshal()) { // If keys match
+			return true
+		}
+	}
+
+	return false
 }
 
 func main() {
@@ -80,20 +94,18 @@ func main() {
 			xml.Unmarshal(byteValue, &domain)
 
 			if domain.UUID == s.User() {
-				// Convert ssh key string to key object
-				realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(domain.Key))
-				// Verify key equality
-				if err != nil || !reflect.DeepEqual(realKey.Marshal(), s.PublicKey().Marshal()) { // If keys don't match
+				// Convert ssh key strings to key objects
+				if userVerified(domain.Keys, s.PublicKey()) {
+					if *verbose {
+						log.Printf("Allowing connection from %s for %s\n", s.RemoteAddr(), domain.UUID)
+					}
+					break
+				} else { // If user not allowed
 					if *verbose {
 						log.Printf("Permission denied from %s for %s\n", s.RemoteAddr(), domain.UUID)
 					}
 					io.WriteString(s, "Permission denied\n")
 					s.Exit(1)
-				} else { // If keys match
-					if *verbose {
-						log.Printf("Allowing connection from %s for %s\n", s.RemoteAddr(), domain.UUID)
-					}
-					break
 				}
 			}
 
