@@ -1,4 +1,4 @@
-# libvirt-ssh
+# libvirt-sshd
 
 [![Go Report](https://goreportcard.com/badge/github.com/natesales/libvirt-sshd?style=for-the-badge)](https://goreportcard.com/report/github.com/natesales/libvirt-sshd) 
 [![License](https://img.shields.io/github/license/natesales/libvirt-sshd?style=for-the-badge)](hhttps://github.com/natesales/libvirt-sshd/blob/main/LICENSE) 
@@ -8,7 +8,7 @@ SSH daemon to interact with libvirt domain serial consoles
 
 ### Installation
 
-libvirt-sshd is available as a debian package and x86 binary in the releases section of this repo. It's also available as an APT package by adding `deb [trusted=yes] https://apt.fury.io/natesales/ /` to your /etc/apt/source.list file.
+This project is available in my public code repositories. See https://github.com/natesales/repo for more info.
 
 ### Usage
 
