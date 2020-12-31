@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
+	gossh "golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
 	"log"
@@ -38,17 +39,38 @@ type Domain struct {
 
 // Check if providedKey is an authorized key
 func userVerified(keys string, providedKey ssh.PublicKey) bool {
+	if *verbose {
+		providedMarshalled := gossh.MarshalAuthorizedKey(providedKey)
+		log.Printf("client provided %s key %s\n", providedKey.Type(), providedKey)
+		log.Printf(string(providedMarshalled))
+	}
+
 	for _, key := range strings.Split(keys, ",") {
 		if *verbose {
-			fmt.Printf("loading allowed key %s\n", key)
+			log.Printf("loading allowed key %s\n", key)
 		}
+
 		realKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
+		if *verbose && err != nil {
+			log.Printf("real key parse error: %v", err)
+		}
+
 		// Verify key equality
 		if err == nil && reflect.DeepEqual(realKey.Marshal(), providedKey.Marshal()) { // If keys match
+			if *verbose {
+				log.Printf("provided %s real %s match, allowing", providedKey, realKey)
+			}
 			return true
+		} else {
+			if *verbose {
+				log.Printf("provided %s real %s dont match", providedKey.Marshal(), realKey)
+			}
 		}
 	}
 
+	if *verbose {
+		log.Println("no keys match, denying")
+	}
 	return false
 }
 
