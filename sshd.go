@@ -31,6 +31,7 @@ type domain struct {
 var (
 	bindHost    = flag.String("l", ":2222", "Listen <host:port>")
 	hostKeyFile = flag.String("k", "~/.ssh/id_ed25519", "SSH host key file")
+	verbose     = flag.Bool("v", false, "Enable verbose logging")
 )
 
 func handleAuth(ctx ssh.Context, providedPassword string) bool {
@@ -57,6 +58,10 @@ func handleAuth(ctx ssh.Context, providedPassword string) bool {
 			return false
 		}
 		_ = xmlFile.Close()
+
+		if *verbose {
+			fmt.Printf("Found VM %s password %s", currentDomain.Name, currentDomain.Password)
+		}
 
 		if currentDomain.Name == ctx.User() && currentDomain.Password == providedPassword {
 			return true // Allow access
