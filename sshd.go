@@ -60,13 +60,11 @@ func handleAuth(ctx ssh.Context, providedPassword string) bool {
 		_ = xmlFile.Close()
 
 		if *verbose {
-			fmt.Printf("Found VM %s password %s", currentDomain.Name, currentDomain.Password)
+			fmt.Printf("Found VM %s password %s\n", currentDomain.Name, currentDomain.Password)
 		}
 
 		if currentDomain.Name == ctx.User() && currentDomain.Password == providedPassword {
 			return true // Allow access
-		} else { // If user not allowed
-			return false // Deny access
 		}
 	}
 
